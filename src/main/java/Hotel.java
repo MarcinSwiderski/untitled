@@ -5,9 +5,6 @@ import model.ResponseData;
 import model.hotelrequest.*;
 import model.hotelrequest.BookRoomResponseData.BookedRoom;
 import model.hotelrequest.EndStayRequestData.RoomWithKey;
-import model.roomrequest.RekeyRequestData;
-import model.roomrequest.RekeyResponseData;
-import model.roomrequest.RoomRequest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -134,12 +131,6 @@ public class Hotel {
 
         bookedForCustomer.forEach(room -> room.bookedCustomer.set(null));
 
-        List<Thread> rekeyingThreads = bookedForCustomer.stream()
-                .map(room -> new Thread(() -> rekeyRoom(room)))
-                .collect(Collectors.toList());
-
-        rekeyingThreads.forEach(Thread::start);
-
         gui.notifyModified(rooms);
         endStayResponseData.setOk(true);
         return endStayResponseData;
@@ -179,23 +170,6 @@ public class Hotel {
 
         gui.notifyModified(rooms);
         return resp;
-    }
-
-    private void rekeyRoom(Room room) {
-        room.key.set(UUID.randomUUID().toString());
-
-        // Tell a room about its new key
-        try(SocketClientUtil scu = new SocketClientUtil("127.0.0.1", room.port.get())) {
-            RekeyRequestData rrd = new RekeyRequestData();
-            rrd.setKey(room.key.get());
-
-            scu.query(
-                    RoomRequest.fromReqData(RoomRequest.RequestType.REKEY, rrd),
-                    RekeyResponseData.class);
-        } catch (IOException e) {
-            System.err.println("Could not rekey room " + room.number);
-            e.printStackTrace();
-        }
     }
 
     private RoomUnregisterResponseData handleRoomUnregister(RoomUnregisterRequestData req) {
