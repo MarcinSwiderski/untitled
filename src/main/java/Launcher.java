@@ -27,8 +27,8 @@ public class Launcher {
         javaExeutable = getJavaExecutable();
         jar = getJar();
 
-        hotelPort.setValue(1500);
-        singleRoomsCount.setValue(2);
+        hotelPort.setValue(1600);
+        singleRoomsCount.setValue(5);
         startHotelButton.addActionListener(actionEvent -> startHotel());
         startRoomsButton.addActionListener(actionEvent -> startRooms());
         startTerminalsButton.addActionListener(actionEvent -> startTerminal());

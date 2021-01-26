@@ -5,8 +5,6 @@ import model.RequestData;
 public class ExitRequestData implements RequestData {
     private String key;
     private String who;
-    // used when handling the closing of a Terminal window - in that case we want to wait for
-    // a response from the Hotel before returning from the request
     private boolean synchronous;
 
     public String getWho() { return who; }

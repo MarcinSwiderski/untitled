@@ -2,7 +2,6 @@ package model.hotelrequest;
 
 import model.RequestData;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class BookRoomRequestData implements RequestData {

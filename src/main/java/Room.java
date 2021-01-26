@@ -133,31 +133,6 @@ public class Room {
         serverThread.start();
     }
 
-    private synchronized void handleLine(String line, PrintWriter out) {
-        RoomRequest request = JsonIterator.deserialize(line, RoomRequest.class);
-        Any args = request.getArguments();
-        ResponseData resp;
-        switch (request.getType()) {
-            case REKEY: resp = handleRekey(args.as(RekeyRequestData.class)); break;
-            case ENTER: resp = handleEnter(args.as(EnterRequestData.class)); break;
-            case EXIT: resp = handleExit(args.as(ExitRequestData.class)); break;
-            default:
-                throw new RuntimeException("Unknown request type");
-        }
-        out.println(JsonStream.serialize(resp));
-    }
-
-    private ExitResponseData handleExit(ExitRequestData req) {
-        ExitResponseData erd = new ExitResponseData();
-
-        if(! req.getKey().equals(key.get()) || ! req.getWho().equals(customerInside.get())) {
-            erd.setCorrectKey(false);
-        } else {
-            erd.setCorrectKey(true);
-            setCustomerInside(null, req.isSynchronous());
-        }
-        return erd;
-    }
 
     private EnterResponseData handleEnter(EnterRequestData req) {
         EnterResponseData erd = new EnterResponseData();
@@ -230,7 +205,7 @@ public class Room {
         ) {
             String line;
             while (null != (line = in.readLine()) && !line.isEmpty())
-                handleLine(line, out);
+//                handleLine(line, out);
 
             clientSocket.close();
         } catch (IOException e) {
