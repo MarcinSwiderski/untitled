@@ -7,27 +7,23 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+
 
 public class Terminal {
     private JPanel cardPanel;
     private JTextField name;
     private JSpinner roomsAmount;
     private JButton bookButton;
-    private JPanel booked;
     private JButton closeReservation;
 
     private SocketClientUtil hotelSCU = new SocketClientUtil("127.0.0.1", Hotel.getHotelPort());
 
     private List<BookedRoom> bookedRooms;
-    private Set<BookedRoom> occupiedRooms = new HashSet<>();
 
     public Terminal() {
-        booked.setLayout(new BoxLayout(booked, BoxLayout.Y_AXIS));
         bookButton.addActionListener(actionEvent -> bookButton());
         closeReservation.addActionListener(actionEvent -> endBooking());
     }
@@ -96,7 +92,6 @@ public class Terminal {
 
                 SwingUtilities.invokeLater(() -> {
                     if(resp.isOk()) {
-                        booked.removeAll();
                         bookedRooms = null;
                         switchCard("initialCard");
                     } else {
@@ -117,20 +112,7 @@ public class Terminal {
 
     private void bookingSuccessful(List<BookedRoom> bookedRooms) {
         this.bookedRooms = bookedRooms;
-
         switchCard("bookedCard");
-
-        for(BookedRoom bookedRoom : bookedRooms)
-            addRoomToUi(bookedRoom);
-    }
-
-    private void addRoomToUi(BookedRoom bookedRoom) {
-        Panel roomPanel = new Panel(new BorderLayout(10, 10));
-        String firstLabel = String.format("Numer pokoju: %d",
-                bookedRoom.getNumber());
-        roomPanel.add(new Label(firstLabel), BorderLayout.LINE_START);
-        roomPanel.add(new Label("Port pokoju: " + bookedRoom.getPort()), BorderLayout.CENTER);
-        booked.add(roomPanel);
     }
 
     private void onExit() {

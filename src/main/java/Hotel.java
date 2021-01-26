@@ -63,7 +63,7 @@ public class Hotel {
     public static int getHotelPort() {
         String port = System.getenv("LAB06_HOTEL_PORT");
         if(port == null)
-            return 1500;
+            return 1600;
         return Integer.parseInt(port);
     }
 
@@ -87,8 +87,8 @@ public class Hotel {
         Any args = request.getArguments();
         ResponseData resp;
         switch (request.getType()) {
-            case ROOM_REGISTER: resp = handleRoomRegister(args.as(RoomRegisterRequestData.class)); break;
-            case ROOM_UNREGISTER: resp = handleRoomUnregister(args.as(RoomUnregisterRequestData.class)); break;
+            case ROOM_REGISTER: resp = handleRoomRegister(args.as(RoomInitReqData.class)); break;
+            case ROOM_UNREGISTER: resp = handleRoomUnregister(args.as(RoomUnregisterReq.class)); break;
             case BOOK_ROOM: resp = handleBookRoom(args.as(BookRoomRequestData.class)); break;
             case END_STAY: resp = handleEndStay(args.as(EndStayRequestData.class)); break;
             default:
@@ -172,7 +172,7 @@ public class Hotel {
         return resp;
     }
 
-    private RoomUnregisterResponseData handleRoomUnregister(RoomUnregisterRequestData req) {
+    private RoomUnregisterResponseData handleRoomUnregister(RoomUnregisterReq req) {
         rooms = rooms.stream()
                 .filter(room -> room.number.get() != req.getRoomNumber())
                 .collect(Collectors.toList());
@@ -181,17 +181,17 @@ public class Hotel {
         return new RoomUnregisterResponseData();
     }
 
-    private RoomRegisterResponseData handleRoomRegister(RoomRegisterRequestData request) {
+    private RoomInitResponse handleRoomRegister(RoomInitReqData request) {
         Room room = new Room();
         room.number.set(nextEmptyRoomNumber());
         room.port.set(nextEmptyRoomPort());
         room.key.set(UUID.randomUUID().toString());
         rooms.add(room);
 
-        RoomRegisterResponseData rrr = new RoomRegisterResponseData();
-        rrr.setNumber(room.number.get());
-        rrr.setPort(room.port.get());
-        rrr.setKey(room.key.get());
+        RoomInitResponse rrr = new RoomInitResponse();
+        rrr.setRoomNumber(room.number.get());
+        rrr.setRoomPort(room.port.get());
+        rrr.setRoomKey(room.key.get());
 
         gui.notifyModified(rooms);
         return rrr;
