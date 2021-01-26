@@ -5,6 +5,9 @@ import model.ResponseData;
 import model.hotelrequest.*;
 import model.hotelrequest.BookRoomResponseData.BookedRoom;
 import model.hotelrequest.EndStayRequestData.RoomWithKey;
+import model.roomrequest.RekeyRequestData;
+import model.roomrequest.RekeyResponseData;
+import model.roomrequest.RoomRequest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,6 +16,7 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,7 +28,6 @@ import java.util.stream.Collectors;
 public class Hotel {
     public static class Room {
         public final AtomicInteger number = new AtomicInteger();
-        public final AtomicInteger size = new AtomicInteger();
         public final AtomicInteger port = new AtomicInteger();
         public final AtomicReference<String> bookedCustomer = new AtomicReference<String>();
         public final AtomicReference<String> key = new AtomicReference<String>();
@@ -63,7 +66,7 @@ public class Hotel {
     public static int getHotelPort() {
         String port = System.getenv("LAB06_HOTEL_PORT");
         if(port == null)
-            return 1600;
+            return 1500;
         return Integer.parseInt(port);
     }
 
@@ -130,6 +133,13 @@ public class Hotel {
         }
 
         bookedForCustomer.forEach(room -> room.bookedCustomer.set(null));
+
+        List<Thread> rekeyingThreads = bookedForCustomer.stream()
+                .map(room -> new Thread(() -> rekeyRoom(room)))
+                .collect(Collectors.toList());
+
+        rekeyingThreads.forEach(Thread::start);
+
         gui.notifyModified(rooms);
         endStayResponseData.setOk(true);
         return endStayResponseData;
@@ -137,46 +147,55 @@ public class Hotel {
 
     private BookRoomResponseData handleBookRoom(BookRoomRequestData req) {
         String customerName = req.getCustomerName();
-        List<Integer> bookedRoomSizes = req.getBookedRoomSizes();
+        int requestedRooms = req.getRoomsAmount();
 
-        // Check if there's enough rooms
-        for(int size = 1; size <= 3; size++) {
-            final int finalSize = size; // so that it can be used in lambdas below
-            long availableRooms = rooms.stream()
-//                    .filter(room -> room.size.get() == finalSize)
-                    .filter(room -> room.bookedCustomer.get() == null)
-                    .count();
-            long requestedRooms = bookedRoomSizes.stream()
-                    .filter(reqSize -> reqSize.equals(finalSize))
-                    .count();
+        List<Room> availableRooms = rooms.stream()
+                .filter(room -> room.bookedCustomer.get() == null)
+                .collect(Collectors.toList());
 
-            if(availableRooms < requestedRooms) {
+            if(availableRooms.size() < requestedRooms) {
                 BookRoomResponseData resp = new BookRoomResponseData();
                 resp.setBookingSuccessful(false);
                 return resp;
             }
-        }
+
         BookRoomResponseData resp = new BookRoomResponseData();
         resp.setBookingSuccessful(true);
-        resp.setBookedRooms(
-            bookedRoomSizes.stream().map(size -> {
-                Room bookedRoom = rooms.stream()
-                        .filter(room -> room.bookedCustomer.get() == null)
-                        .findFirst()
-                        .orElseThrow();
-                bookedRoom.bookedCustomer.set(customerName);
-                return bookedRoom;
-            }).map(room -> {
-                BookedRoom bookedRoom = new BookedRoom();
-                bookedRoom.setHost("127.0.0.1");
-                bookedRoom.setPort(room.port.get());
-                bookedRoom.setNumber(room.number.get());
-                bookedRoom.setKey(room.key.get());
-                return bookedRoom;
-            }).collect(Collectors.toList()));
+        List<BookedRoom> roomsToBook = new ArrayList<>();
+        for (int i = 0; i < requestedRooms; i++) {
+            Room freeRoom = rooms.stream()
+                    .filter(room -> room.bookedCustomer.get() == null)
+                    .findFirst()
+                    .orElseThrow();
+            freeRoom.bookedCustomer.set(customerName);
+            BookedRoom bookedRoom = new BookedRoom();
+            bookedRoom.setHost("127.0.0.1");
+            bookedRoom.setPort(freeRoom.port.get());
+            bookedRoom.setNumber(freeRoom.number.get());
+            bookedRoom.setKey(freeRoom.key.get());
+            roomsToBook.add(bookedRoom);
+        }
+        resp.setBookedRooms(roomsToBook);
 
         gui.notifyModified(rooms);
         return resp;
+    }
+
+    private void rekeyRoom(Room room) {
+        room.key.set(UUID.randomUUID().toString());
+
+        // Tell a room about its new key
+        try(SocketClientUtil scu = new SocketClientUtil("127.0.0.1", room.port.get())) {
+            RekeyRequestData rrd = new RekeyRequestData();
+            rrd.setKey(room.key.get());
+
+            scu.query(
+                    RoomRequest.fromReqData(RoomRequest.RequestType.REKEY, rrd),
+                    RekeyResponseData.class);
+        } catch (IOException e) {
+            System.err.println("Could not rekey room " + room.number);
+            e.printStackTrace();
+        }
     }
 
     private RoomUnregisterResponseData handleRoomUnregister(RoomUnregisterRequestData req) {
@@ -190,7 +209,6 @@ public class Hotel {
 
     private RoomRegisterResponseData handleRoomRegister(RoomRegisterRequestData request) {
         Room room = new Room();
-        room.size.set(request.getSize());
         room.number.set(nextEmptyRoomNumber());
         room.port.set(nextEmptyRoomPort());
         room.key.set(UUID.randomUUID().toString());

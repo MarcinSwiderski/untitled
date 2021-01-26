@@ -33,24 +33,17 @@ public class Terminal {
     }
 
     private void bookButton() {
-        int roomsAmount = (Integer) this.roomsAmount.getValue();
+        final int roomsAmount = (Integer) this.roomsAmount.getValue();
 
         if (roomsAmount <= 0)
             return;
 
         final String customerName = name.getText();
-        try {
-            for (JSpinner spinner : Arrays.asList(this.roomsAmount))
-                spinner.commitEdit();
-        } catch (ParseException ignored) {}
 
         new Thread(() -> {
-            List<Integer> roomSizes = new ArrayList<>();
-            IntStream.range(0, roomsAmount).mapToObj(i -> 1).forEach(roomSizes::add);
-
             BookRoomRequestData bookRoomRequestData = new BookRoomRequestData();
             bookRoomRequestData.setCustomerName(customerName);
-            bookRoomRequestData.setBookedRoomSizes(roomSizes);
+            bookRoomRequestData.setRoomsAmount(roomsAmount);
 
             try {
                 BookRoomResponseData response = hotelSCU.query(
@@ -133,9 +126,8 @@ public class Terminal {
 
     private void addRoomToUi(BookedRoom bookedRoom) {
         Panel roomPanel = new Panel(new BorderLayout(10, 10));
-        String firstLabel = String.format("Numer pokoju: %d (pokój %d-osobowy)",
-                bookedRoom.getNumber(),
-                bookedRoom.getSize());
+        String firstLabel = String.format("Numer pokoju: %d",
+                bookedRoom.getNumber());
         roomPanel.add(new Label(firstLabel), BorderLayout.LINE_START);
         roomPanel.add(new Label("Port pokoju: " + bookedRoom.getPort()), BorderLayout.CENTER);
         booked.add(roomPanel);

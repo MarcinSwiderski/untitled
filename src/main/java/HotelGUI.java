@@ -16,13 +16,12 @@ public class HotelGUI implements Runnable, TableModel {
 
     private final int COLUMN_ROOM_NUMBER = 0;
     private final int COLUMN_PORT = 1;
-    private final int COLUMN_SIZE = 2;
-    private final int COLUMN_BOOKED = 3;
+    private final int COLUMN_BOOKED = 2;
 
 
     public HotelGUI(List<Hotel.Room> rooms, int hotelPort) {
         this.rooms = rooms;
-        this.portLabel.setText(String.format("Port na którym nasłuchuje hotel: %d", hotelPort));
+        this.portLabel.setText("Port: "+ hotelPort);
     }
 
     @Override
@@ -33,7 +32,7 @@ public class HotelGUI implements Runnable, TableModel {
             e.printStackTrace();
         }
 
-        frame = new JFrame("Hotel");
+        frame = new JFrame("Hotel-Host");
         frame.setContentPane(panel);
         frame.pack();
         frame.setVisible(true);
@@ -49,14 +48,13 @@ public class HotelGUI implements Runnable, TableModel {
 
     @Override
     public int getColumnCount() {
-        return 4;
+        return 3;
     }
 
     @Override
     public String getColumnName(int i) {
         return i == COLUMN_ROOM_NUMBER ? "Numer pokoju"
                 : i == COLUMN_PORT ? "Port"
-                : i == COLUMN_SIZE ? "Rozmiar pokoju"
                 : i == COLUMN_BOOKED ? "Zarezerwowany"
                 : "";
     }
@@ -77,11 +75,9 @@ public class HotelGUI implements Runnable, TableModel {
             return "";
         Hotel.Room room = rooms.get(row);
         String booked = room.bookedCustomer.get();
-        String guestInside = room.guestInside.get();
 
         return column == COLUMN_ROOM_NUMBER ? room.number.toString()
                 : column == COLUMN_PORT ? room.port.toString()
-                : column == COLUMN_SIZE ? room.size.toString()
                 : column == COLUMN_BOOKED ? (booked != null ? "tak (" + booked + ")" : "nie")
                 : "";
     }
