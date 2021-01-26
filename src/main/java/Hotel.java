@@ -94,56 +94,11 @@ public class Hotel {
             case ROOM_UNREGISTER: resp = handleRoomUnregister(args.as(RoomUnregisterRequestData.class)); break;
             case BOOK_ROOM: resp = handleBookRoom(args.as(BookRoomRequestData.class)); break;
             case UPDATE_ROOM_STATUS: resp = handleUpdateRoomStatus(args.as(UpdateRoomStatusRequestData.class)); break;
-            case END_STAY: resp = handleEndStay(args.as(EndStayRequestData.class)); break;
+
             default:
                 throw new RuntimeException("Unknown request type");
         }
         out.println(JsonStream.serialize(resp));
-    }
-
-    private EndStayResponseData handleEndStay(EndStayRequestData req) {
-        EndStayResponseData endStayResponseData = new EndStayResponseData();
-        String guest = req.getWho();
-
-        List<Room> bookedForCustomer = rooms.stream()
-                .filter(room -> guest.equals(room.bookedCustomer.get()))
-                .collect(Collectors.toList());
-
-        if(!req.isForce()) {
-            List<Integer> bookedButStillOccupiedRoomNumbers = bookedForCustomer.stream()
-                    .filter(room -> room.guestInside.get() != null)
-                    .map(room -> room.number.get())
-                    .collect(Collectors.toList());
-
-            if (!bookedButStillOccupiedRoomNumbers.isEmpty()) {
-                endStayResponseData.setOk(false);
-                endStayResponseData.setStillOccupiedRooms(bookedButStillOccupiedRoomNumbers);
-                return endStayResponseData;
-            }
-
-            for(RoomWithKey roomWithKey : req.getRoomsWithKeys()) {
-                Optional<Room> room = rooms.stream()
-                        .filter(r -> r.number.get() == roomWithKey.getRoomNumber())
-                        .findFirst();
-
-                if(room.isEmpty() || !room.get().key.get().equals(roomWithKey.getRoomKey())) {
-                    endStayResponseData.setOk(false);
-                    return endStayResponseData;
-                }
-            }
-        }
-
-        bookedForCustomer.forEach(room -> room.bookedCustomer.set(null));
-
-        List<Thread> rekeyingThreads = bookedForCustomer.stream()
-                .map(room -> new Thread(() -> rekeyRoom(room)))
-                .collect(Collectors.toList());
-
-        rekeyingThreads.forEach(Thread::start);
-
-        gui.notifyModified(rooms);
-        endStayResponseData.setOk(true);
-        return endStayResponseData;
     }
 
     private UpdateRoomStatusResponseData handleUpdateRoomStatus(UpdateRoomStatusRequestData req) {
@@ -203,23 +158,6 @@ public class Hotel {
 
         gui.notifyModified(rooms);
         return resp;
-    }
-
-    private void rekeyRoom(Room room) {
-        room.key.set(UUID.randomUUID().toString());
-
-        // Tell a room about its new key
-        try(SocketClientUtil scu = new SocketClientUtil("127.0.0.1", room.port.get())) {
-            RekeyRequestData rrd = new RekeyRequestData();
-            rrd.setKey(room.key.get());
-
-            scu.query(
-                    RoomRequest.fromReqData(RoomRequest.RequestType.REKEY, rrd),
-                    RekeyResponseData.class);
-        } catch (IOException e) {
-            System.err.println("Could not rekey room " + room.number);
-            e.printStackTrace();
-        }
     }
 
     private RoomUnregisterResponseData handleRoomUnregister(RoomUnregisterRequestData req) {
