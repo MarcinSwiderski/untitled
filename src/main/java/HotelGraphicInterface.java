@@ -53,7 +53,7 @@ public class HotelGraphicInterface implements Runnable, TableModel {
 
     @Override
     public String getColumnName(int i) {
-        return i == COLUMN_ROOM_NUMBER ? "Numer pokoju"
+        return i == COLUMN_ROOM_NUMBER ? "Numer_pokoju"
                 : i == COLUMN_PORT ? "Port"
                 : i == COLUMN_BOOKED ? "Zarezerwowany"
                 : "";

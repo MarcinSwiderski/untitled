@@ -4,14 +4,14 @@ import com.jsoniter.output.JsonStream;
 import java.io.*;
 import java.net.Socket;
 
-public class SocketClientUtil implements Closeable {
+public class SocketClientUtilities implements Closeable {
     private final String adress;
     private final int port;
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
 
-    public SocketClientUtil(String netAdress, int port) {
+    public SocketClientUtilities(String netAdress, int port) {
         this.adress = netAdress;
         this.port = port;
     }

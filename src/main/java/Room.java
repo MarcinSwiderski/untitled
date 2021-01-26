@@ -16,7 +16,7 @@ import static model.hotelrequest.HotelReq.RequestType.*;
 
 public class Room {
     private JPanel panel;
-    private JLabel labelName;
+    private JLabel labelRoomNumber;
     private JLabel labelKey;
     private Thread serverThread;
     private JFrame frame;
@@ -31,7 +31,7 @@ public class Room {
         Room room = new Room();
     }
 
-    private SocketClientUtil hotelSCU = new SocketClientUtil("127.0.0.1", Hotel.getHotelPort());
+    private SocketClientUtilities hotelSCU = new SocketClientUtilities("127.0.0.1", Hotel.getHotelPort());
     private final AtomicReference<ServerSocket> serverSocket = new AtomicReference<>();
     private final AtomicInteger number = new AtomicInteger();
     private final AtomicInteger port = new AtomicInteger();
@@ -39,7 +39,7 @@ public class Room {
 
     private void updateLabels() {
         SwingUtilities.invokeLater(() -> { // run on GUI thread
-            labelName.setText(String.valueOf(number.get()));
+            labelRoomNumber.setText(String.valueOf(number.get()));
             labelKey.setText(key.get());
         });
     }
@@ -94,12 +94,12 @@ public class Room {
     }
 
     private void deleteFromHotel() {
-        RoomUnregisterReq rurd = new RoomUnregisterReq();
-        rurd.setRoomNumber(number.get());
+        RoomUnregisterReq unregisteredRoomReq = new RoomUnregisterReq();
+        unregisteredRoomReq.setRoomNumber(number.get());
 
         try {
             hotelSCU.query(
-                    HotelReq.fromReqData(ROOM_REMOVED, rurd),
+                    HotelReq.fromReqData(ROOM_REMOVED, unregisteredRoomReq),
                     RoomInitRes.class);
         } catch (IOException e) {
             System.err.println("Failed unregistering from the Hotel");
@@ -137,9 +137,9 @@ public class Room {
             serverSock.setReuseAddress(true);
             serverSock.bind(new InetSocketAddress(port.get()));
         } catch (SocketException sex) {
-            // Ignore - the socket must have been closed from another thread
+            //closed by another thread
         } catch (IOException e) {
-            throw new RuntimeException("Failed creating a startServer socket on a Room", e);
+            throw new RuntimeException("Failed to start serverThread in " + Room.class + "class !" , e);
         }
     }
 }

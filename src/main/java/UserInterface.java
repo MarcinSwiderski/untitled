@@ -19,7 +19,7 @@ public class UserInterface {
     private JButton bookButton;
     private JButton closeReservation;
 
-    private SocketClientUtil hotelSCU = new SocketClientUtil("127.0.0.1", Hotel.getHotelPort());
+    private SocketClientUtilities hotelSCU = new SocketClientUtilities("127.0.0.1", Hotel.getHotelPort());
 
     private List<BookedRoom> bookedRooms;
 
@@ -28,12 +28,12 @@ public class UserInterface {
     }
 
     public UserInterface() {
-        bookButton.addActionListener(actionEvent -> bookButton());
+        bookButton.addActionListener(actionEvent -> makeReservationButton());
         closeReservation.addActionListener(actionEvent -> endBooking());
         runUi();
     }
 
-    private void bookButton() {
+    private void makeReservationButton() {
         final int roomsAmount = (Integer) this.roomsAmount.getValue();
 
         if (roomsAmount <= 0)
@@ -42,7 +42,7 @@ public class UserInterface {
         final String customerName = name.getText();
 
         new Thread(() -> {
-            BookRoomRequest bookRoomRequestData = new BookRoomRequest();
+            BookRoomReq bookRoomRequestData = new BookRoomReq();
             bookRoomRequestData.setName(customerName);
             bookRoomRequestData.setRoomsAmount(roomsAmount);
 
@@ -89,7 +89,6 @@ public class UserInterface {
                 TerminalEndReservationReq endStayRequestData = new TerminalEndReservationReq();
                 endStayRequestData.setWho(who);
                 endStayRequestData.setRoomsWithKeys(roomsWithKeys);
-//                endStayRequestData.setForce(false);
 
                 TerminalEndReservationRes resp = hotelSCU.query(
                         HotelReq.fromReqData(HotelReq.RequestType.TERMINAL_END_RESERVATION, endStayRequestData),

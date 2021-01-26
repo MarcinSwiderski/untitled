@@ -102,7 +102,7 @@ public class Hotel {
                 resp = handleRoomUnregister(args.as(RoomUnregisterReq.class));
                 break;
             case TERMINAL_RESERVE_ROOM:
-                resp = handleBookRoom(args.as(BookRoomRequest.class));
+                resp = handleBookRoom(args.as(BookRoomReq.class));
                 break;
             case TERMINAL_END_RESERVATION:
                 resp = handleEndStay(args.as(TerminalEndReservationReq.class));
@@ -112,25 +112,14 @@ public class Hotel {
         }
         out.println(JsonStream.serialize(resp));
     }
-
+//
     private TerminalEndReservationRes handleEndStay(TerminalEndReservationReq req) {
-        TerminalEndReservationRes endStayResponseData = new TerminalEndReservationRes();
+        TerminalEndReservationRes terminalEndReservationResponseData = new TerminalEndReservationRes();
         String guest = req.getWho();
 
         List<Room> bookedForCustomer = rooms.stream()
                 .filter(room -> guest.equals(room.bookedCustomer.get()))
                 .collect(Collectors.toList());
-
-        List<Integer> bookedButStillOccupiedRoomNumbers = bookedForCustomer.stream()
-                .filter(room -> room.guestInside.get() != null)
-                .map(room -> room.number.get())
-                .collect(Collectors.toList());
-
-        if (!bookedButStillOccupiedRoomNumbers.isEmpty()) {
-            endStayResponseData.setOk(false);
-            endStayResponseData.setStillOccupiedRooms(bookedButStillOccupiedRoomNumbers);
-            return endStayResponseData;
-        }
 
         for (RoomWithKey roomWithKey : req.getRoomsWithKeys()) {
             Optional<Room> room = rooms.stream()
@@ -138,19 +127,19 @@ public class Hotel {
                     .findFirst();
 
             if (room.isEmpty() || !room.get().key.get().equals(roomWithKey.getRoomKey())) {
-                endStayResponseData.setOk(false);
-                return endStayResponseData;
+                terminalEndReservationResponseData.setOk(false);
+                return terminalEndReservationResponseData;
             }
         }
 
         bookedForCustomer.forEach(room -> room.bookedCustomer.set(null));
 
         gui.notifyModified(rooms);
-        endStayResponseData.setOk(true);
-        return endStayResponseData;
+        terminalEndReservationResponseData.setOk(true);
+        return terminalEndReservationResponseData;
     }
 
-    private BookRoomRes handleBookRoom(BookRoomRequest req) {
+    private BookRoomRes handleBookRoom(BookRoomReq req) {
         String customerName = req.getName();
         int requestedRooms = req.getRoomsAmount();
 

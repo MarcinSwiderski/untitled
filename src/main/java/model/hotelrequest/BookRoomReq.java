@@ -2,7 +2,7 @@ package model.hotelrequest;
 
 import model.Request;
 
-public class BookRoomRequest implements Request {
+public class BookRoomReq implements Request {
     private String name;
     private int roomsAmount;
 
