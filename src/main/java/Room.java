@@ -28,6 +28,15 @@ public class Room {
     private JFrame frame;
     private final int SIZE = 1;
 
+    public Room() {
+        runUi();
+        server();
+    }
+
+    public static void main(String[] args) {
+        Room room = new Room();
+    }
+
     private SocketClientUtil hotelSCU = new SocketClientUtil("127.0.0.1", Hotel.getHotelPort());
     private final AtomicReference<ServerSocket> serverSocket = new AtomicReference<>();
     private final AtomicInteger number = new AtomicInteger();
@@ -82,12 +91,6 @@ public class Room {
             }
         });
         frame.setMinimumSize(new Dimension(450, 150));
-    }
-
-    public static void main(String[] args) {
-        Room room = new Room();
-        room.runUi();
-        room.server();
     }
 
     private void queryNumberAndPort() throws IOException {

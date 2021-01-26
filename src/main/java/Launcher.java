@@ -130,7 +130,7 @@ public class Launcher {
                 .command(command)
                 .inheritIO();
 
-        pb.environment().put("LAB06_HOTEL_PORT", hotelPort.getValue().toString());
+        pb.environment().put("HOTEL:PORT", hotelPort.getValue().toString());
         return pb;
     }
 }

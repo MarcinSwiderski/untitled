@@ -26,10 +26,15 @@ public class Terminal {
     private List<BookedRoom> bookedRooms;
     private Set<BookedRoom> occupiedRooms = new HashSet<>();
 
+    public static void main(String[] args) {
+        Terminal terminal = new Terminal();
+    }
+
     public Terminal() {
         booked.setLayout(new BoxLayout(booked, BoxLayout.Y_AXIS));
         bookButton.addActionListener(actionEvent -> bookButton());
         closeReservation.addActionListener(actionEvent -> endBooking());
+        runUi();
     }
 
     private void bookButton() {
@@ -160,10 +165,5 @@ public class Terminal {
                 frame.dispose();
             }
         });
-    }
-
-    public static void main(String[] args) {
-        Terminal terminal = new Terminal();
-        terminal.runUi();
     }
 }

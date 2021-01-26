@@ -33,6 +33,15 @@ public class Hotel {
     private List<Room> rooms = new CopyOnWriteArrayList<>(); // a concurrent list so HotelGUI can access it freely
     private HotelGUI gui;
 
+    public Hotel() {
+        startGui();
+        serve(getHotelPort());
+    }
+
+    public static void main(String[] args) {
+        Hotel hotel = new Hotel();
+    }
+
     private void startGui() {
         gui = new HotelGUI(rooms, getHotelPort());
         Thread guiThread = new Thread(gui);
@@ -54,16 +63,10 @@ public class Hotel {
         }
     }
 
-    public static void main(String[] args) {
-        Hotel hotel = new Hotel();
-        hotel.startGui();
-        hotel.serve(getHotelPort());
-    }
-
     public static int getHotelPort() {
-        String port = System.getenv("LAB06_HOTEL_PORT");
+        String port = System.getenv("HOTEL:PORT");
         if(port == null)
-            return 1500;
+            return 1600;
         return Integer.parseInt(port);
     }
 
