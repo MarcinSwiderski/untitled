@@ -1,8 +1,8 @@
 package model.hotelrequest;
 
-import model.ResponseData;
+import model.Response;
 
-public class RoomInitResponse implements ResponseData {
+public class RoomInitRes implements Response {
     private int roomNumber;
     private int roomPort;
     private String roomKey;

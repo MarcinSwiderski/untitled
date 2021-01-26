@@ -1,10 +1,10 @@
 package model.hotelrequest;
 
-import model.ResponseData;
+import model.Response;
 
 import java.util.List;
 
-public class EndStayResponseData implements ResponseData {
+public class TerminalEndReservationRes implements Response {
     private boolean ok;
     private List<Integer> stillOccupiedRooms;
 

@@ -1,11 +1,11 @@
 package model.hotelrequest;
 
-import model.ResponseData;
+import model.Response;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookRoomResponseData implements ResponseData {
+public class BookRoomRes implements Response {
     public static class BookedRoom {
         private int number;
         private String host;

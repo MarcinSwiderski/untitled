@@ -6,7 +6,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HotelGUI implements Runnable, TableModel {
+public class HotelGraphicInterface implements Runnable, TableModel {
     private JFrame frame;
     private JPanel panel;
     private JTable table;
@@ -19,7 +19,7 @@ public class HotelGUI implements Runnable, TableModel {
     private final int COLUMN_BOOKED = 2;
 
 
-    public HotelGUI(List<Hotel.Room> rooms, int hotelPort) {
+    public HotelGraphicInterface(List<Hotel.Room> rooms, int hotelPort) {
         this.rooms = rooms;
         this.portLabel.setText("Port: "+ hotelPort);
     }
@@ -32,7 +32,7 @@ public class HotelGUI implements Runnable, TableModel {
             e.printStackTrace();
         }
 
-        frame = new JFrame("Hotel-Host");
+        frame = new JFrame("HOTEL_INTERFEJS_GRAFICZNY");
         frame.setContentPane(panel);
         frame.pack();
         frame.setVisible(true);

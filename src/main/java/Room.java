@@ -12,13 +12,11 @@ import java.net.SocketException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static model.hotelrequest.HotelRequest.RequestType.*;
+import static model.hotelrequest.HotelReq.RequestType.*;
 
 public class Room {
     private JPanel panel;
     private JLabel labelName;
-//    private JLabel labelCapacity;
-    private JLabel labelIsFull;
     private JLabel labelKey;
     private Thread serverThread;
     private JFrame frame;
@@ -26,7 +24,7 @@ public class Room {
 
     public Room() {
         runUi();
-        server();
+        startServer();
     }
 
     public static void main(String[] args) {
@@ -38,19 +36,15 @@ public class Room {
     private final AtomicInteger number = new AtomicInteger();
     private final AtomicInteger port = new AtomicInteger();
     private final AtomicReference<String> key = new AtomicReference<>();
-    private final AtomicReference<String> customerInside = new AtomicReference<>();
 
     private void updateLabels() {
         SwingUtilities.invokeLater(() -> { // run on GUI thread
             labelName.setText(String.valueOf(number.get()));
-//            labelCapacity.setText(String.valueOf(SIZE));
-            labelIsFull.setText(customerInside.get() == null ? "Wolny" : "Zajęty (" + customerInside.get() + ")");
             labelKey.setText(key.get());
         });
     }
 
     private void onExit() {
-        // runs on the GUI thread
         Thread unregisterThread = new Thread(this::deleteFromHotel);
         unregisterThread.start();
 
@@ -58,8 +52,6 @@ public class Room {
 
         try {
             hotelSCU.close();
-
-            // ensure that we don't close a null ServerSocket
             serverSocket.compareAndExchange(null, new ServerSocket()).close();
             serverThread.join();
             unregisterThread.join();
@@ -89,12 +81,12 @@ public class Room {
     }
 
     private void queryNumberAndPort() throws IOException {
-        RoomInitReqData rrr = new RoomInitReqData();
+        RoomInitReq rrr = new RoomInitReq();
         rrr.setSize(SIZE);
 
-        RoomInitResponse resp = hotelSCU.query(
-                HotelRequest.fromReqData(ROOM_REGISTER, rrr),
-                RoomInitResponse.class);
+        RoomInitRes resp = hotelSCU.query(
+                HotelReq.fromReqData(ROOM_CREATED, rrr),
+                RoomInitRes.class);
 
         setNumber(resp.getRoomNumber());
         setPort(resp.getRoomPort());
@@ -107,15 +99,15 @@ public class Room {
 
         try {
             hotelSCU.query(
-                    HotelRequest.fromReqData(ROOM_UNREGISTER, rurd),
-                    RoomInitResponse.class);
+                    HotelReq.fromReqData(ROOM_REMOVED, rurd),
+                    RoomInitRes.class);
         } catch (IOException e) {
             System.err.println("Failed unregistering from the Hotel");
             e.printStackTrace();
         }
     }
 
-    private void server() {
+    private void startServer() {
         serverThread = new Thread(this::serverThread);
         serverThread.start();
     }
@@ -147,7 +139,7 @@ public class Room {
         } catch (SocketException sex) {
             // Ignore - the socket must have been closed from another thread
         } catch (IOException e) {
-            throw new RuntimeException("Failed creating a server socket on a Room", e);
+            throw new RuntimeException("Failed creating a startServer socket on a Room", e);
         }
     }
 }

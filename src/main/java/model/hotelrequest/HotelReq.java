@@ -1,18 +1,14 @@
 package model.hotelrequest;
 
 import com.jsoniter.any.Any;
-import model.RequestData;
+import model.Request;
 
-public class HotelRequest {
+public class HotelReq {
     public enum RequestType {
-        // from Room
-        ROOM_REGISTER,
-        ROOM_UNREGISTER,
-        UPDATE_ROOM_STATUS,
-
-        // from Terminal
-        BOOK_ROOM,
-        END_STAY,
+        ROOM_CREATED,
+        ROOM_REMOVED,
+        TERMINAL_RESERVE_ROOM,
+        TERMINAL_END_RESERVATION,
     }
 
     private RequestType type;
@@ -23,10 +19,10 @@ public class HotelRequest {
     public Any getArguments() { return arguments; }
     public void setArguments(Any arguments) { this.arguments = arguments; }
 
-    public static HotelRequest fromReqData(RequestType type, RequestData requestData) {
-        HotelRequest hr = new HotelRequest();
+    public static HotelReq fromReqData(RequestType type, Request request) {
+        HotelReq hr = new HotelReq();
         hr.setType(type);
-        hr.setArguments(Any.wrap(requestData));
+        hr.setArguments(Any.wrap(request));
         return hr;
     }
 }

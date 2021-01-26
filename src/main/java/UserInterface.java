@@ -1,6 +1,6 @@
 import model.hotelrequest.*;
-import model.hotelrequest.BookRoomResponseData.BookedRoom;
-import model.hotelrequest.EndStayRequestData.RoomWithKey;
+import model.hotelrequest.BookRoomRes.BookedRoom;
+import model.hotelrequest.TerminalEndReservationReq.RoomWithKey;
 
 import javax.swing.*;
 import java.awt.*;
@@ -42,14 +42,14 @@ public class UserInterface {
         final String customerName = name.getText();
 
         new Thread(() -> {
-            BookRoomRequestData bookRoomRequestData = new BookRoomRequestData();
-            bookRoomRequestData.setCustomerName(customerName);
+            BookRoomRequest bookRoomRequestData = new BookRoomRequest();
+            bookRoomRequestData.setName(customerName);
             bookRoomRequestData.setRoomsAmount(roomsAmount);
 
             try {
-                BookRoomResponseData response = hotelSCU.query(
-                        HotelRequest.fromReqData(HotelRequest.RequestType.BOOK_ROOM, bookRoomRequestData),
-                        BookRoomResponseData.class);
+                BookRoomRes response = hotelSCU.query(
+                        HotelReq.fromReqData(HotelReq.RequestType.TERMINAL_RESERVE_ROOM, bookRoomRequestData),
+                        BookRoomRes.class);
 
                 if(!response.isBookingSuccessful()) {
                     JOptionPane.showMessageDialog(cardPanel, "Hotel nie posiada wystarczającej liczby pokoi");
@@ -86,14 +86,14 @@ public class UserInterface {
 
         new Thread(() -> {
             try {
-                EndStayRequestData endStayRequestData = new EndStayRequestData();
+                TerminalEndReservationReq endStayRequestData = new TerminalEndReservationReq();
                 endStayRequestData.setWho(who);
                 endStayRequestData.setRoomsWithKeys(roomsWithKeys);
-                endStayRequestData.setForce(false);
+//                endStayRequestData.setForce(false);
 
-                EndStayResponseData resp = hotelSCU.query(
-                        HotelRequest.fromReqData(HotelRequest.RequestType.END_STAY, endStayRequestData),
-                        EndStayResponseData.class);
+                TerminalEndReservationRes resp = hotelSCU.query(
+                        HotelReq.fromReqData(HotelReq.RequestType.TERMINAL_END_RESERVATION, endStayRequestData),
+                        TerminalEndReservationRes.class);
 
                 SwingUtilities.invokeLater(() -> {
                     if(resp.isOk()) {

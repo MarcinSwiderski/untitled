@@ -1,11 +1,10 @@
 import com.jsoniter.JsonIterator;
 import com.jsoniter.any.Any;
 import com.jsoniter.output.JsonStream;
-import model.ResponseData;
+import model.Response;
 import model.hotelrequest.*;
-import model.hotelrequest.BookRoomResponseData.BookedRoom;
-import model.hotelrequest.EndStayRequestData.RoomWithKey;
-
+import model.hotelrequest.BookRoomRes.BookedRoom;
+import model.hotelrequest.TerminalEndReservationReq.RoomWithKey;
 import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,8 +30,9 @@ public class Hotel {
         public final AtomicReference<String> key = new AtomicReference<>();
         public final AtomicReference<String> guestInside = new AtomicReference<>();
     }
+
     private List<Room> rooms = new CopyOnWriteArrayList<>(); // a concurrent list so HotelGUI can access it freely
-    private HotelGUI gui;
+    private HotelGraphicInterface gui;
     private static int startingPort = 3010;
 
     public Hotel() {
@@ -51,7 +51,7 @@ public class Hotel {
     }
 
     private void startGui() {
-        gui = new HotelGUI(rooms, getHotelPort());
+        gui = new HotelGraphicInterface(rooms, getHotelPort());
         Thread guiThread = new Thread(gui);
         guiThread.start();
     }
@@ -61,8 +61,6 @@ public class Hotel {
             serverSocket.setReuseAddress(true);
             serverSocket.bind(new InetSocketAddress("127.0.0.1", port));
             while (true) {
-                // cannot use try-with-resources here as clientSocket would close before
-                // handleConnection starts. clientSocket has to be closed in handleConnection
                 Socket clientSocket = serverSocket.accept();
                 new Thread(() -> handleConnection(clientSocket)).start();
             }
@@ -73,70 +71,75 @@ public class Hotel {
 
     public static int getHotelPort() {
         String port = System.getenv("HOTEL:PORT");
-        if(port == null)
+        if (port == null)
             return startingPort;
         return Integer.parseInt(port);
     }
 
     private void handleConnection(Socket clientSocket) {
-        try(PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
+        try (PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
         ) {
             String line;
-            while(null != (line = in.readLine()) && !line.isEmpty())
+            while (null != (line = in.readLine()) && !line.isEmpty())
                 handleLine(line, out);
 
             clientSocket.close();
         } catch (IOException e) {
-            // don't rethrow on errors local to only one connection
             e.printStackTrace();
         }
     }
 
     private synchronized void handleLine(String line, PrintWriter out) {
-        HotelRequest request = JsonIterator.deserialize(line, HotelRequest.class);
+        HotelReq request = JsonIterator.deserialize(line, HotelReq.class);
         Any args = request.getArguments();
-        ResponseData resp;
+        Response resp;
         switch (request.getType()) {
-            case ROOM_REGISTER: resp = handleRoomRegister(args.as(RoomInitReqData.class)); break;
-            case ROOM_UNREGISTER: resp = handleRoomUnregister(args.as(RoomUnregisterReq.class)); break;
-            case BOOK_ROOM: resp = handleBookRoom(args.as(BookRoomRequestData.class)); break;
-            case END_STAY: resp = handleEndStay(args.as(EndStayRequestData.class)); break;
+            case ROOM_CREATED:
+                resp = handleRoomRegister(args.as(RoomInitReq.class));
+                break;
+            case ROOM_REMOVED:
+                resp = handleRoomUnregister(args.as(RoomUnregisterReq.class));
+                break;
+            case TERMINAL_RESERVE_ROOM:
+                resp = handleBookRoom(args.as(BookRoomRequest.class));
+                break;
+            case TERMINAL_END_RESERVATION:
+                resp = handleEndStay(args.as(TerminalEndReservationReq.class));
+                break;
             default:
                 throw new RuntimeException("Unknown request type");
         }
         out.println(JsonStream.serialize(resp));
     }
 
-    private EndStayResponseData handleEndStay(EndStayRequestData req) {
-        EndStayResponseData endStayResponseData = new EndStayResponseData();
+    private TerminalEndReservationRes handleEndStay(TerminalEndReservationReq req) {
+        TerminalEndReservationRes endStayResponseData = new TerminalEndReservationRes();
         String guest = req.getWho();
 
         List<Room> bookedForCustomer = rooms.stream()
                 .filter(room -> guest.equals(room.bookedCustomer.get()))
                 .collect(Collectors.toList());
 
-        if(!req.isForce()) {
-            List<Integer> bookedButStillOccupiedRoomNumbers = bookedForCustomer.stream()
-                    .filter(room -> room.guestInside.get() != null)
-                    .map(room -> room.number.get())
-                    .collect(Collectors.toList());
+        List<Integer> bookedButStillOccupiedRoomNumbers = bookedForCustomer.stream()
+                .filter(room -> room.guestInside.get() != null)
+                .map(room -> room.number.get())
+                .collect(Collectors.toList());
 
-            if (!bookedButStillOccupiedRoomNumbers.isEmpty()) {
+        if (!bookedButStillOccupiedRoomNumbers.isEmpty()) {
+            endStayResponseData.setOk(false);
+            endStayResponseData.setStillOccupiedRooms(bookedButStillOccupiedRoomNumbers);
+            return endStayResponseData;
+        }
+
+        for (RoomWithKey roomWithKey : req.getRoomsWithKeys()) {
+            Optional<Room> room = rooms.stream()
+                    .filter(r -> r.number.get() == roomWithKey.getRoomNumber())
+                    .findFirst();
+
+            if (room.isEmpty() || !room.get().key.get().equals(roomWithKey.getRoomKey())) {
                 endStayResponseData.setOk(false);
-                endStayResponseData.setStillOccupiedRooms(bookedButStillOccupiedRoomNumbers);
                 return endStayResponseData;
-            }
-
-            for(RoomWithKey roomWithKey : req.getRoomsWithKeys()) {
-                Optional<Room> room = rooms.stream()
-                        .filter(r -> r.number.get() == roomWithKey.getRoomNumber())
-                        .findFirst();
-
-                if(room.isEmpty() || !room.get().key.get().equals(roomWithKey.getRoomKey())) {
-                    endStayResponseData.setOk(false);
-                    return endStayResponseData;
-                }
             }
         }
 
@@ -147,21 +150,21 @@ public class Hotel {
         return endStayResponseData;
     }
 
-    private BookRoomResponseData handleBookRoom(BookRoomRequestData req) {
-        String customerName = req.getCustomerName();
+    private BookRoomRes handleBookRoom(BookRoomRequest req) {
+        String customerName = req.getName();
         int requestedRooms = req.getRoomsAmount();
 
         List<Room> availableRooms = rooms.stream()
                 .filter(room -> room.bookedCustomer.get() == null)
                 .collect(Collectors.toList());
 
-            if(availableRooms.size() < requestedRooms) {
-                BookRoomResponseData resp = new BookRoomResponseData();
-                resp.setBookingSuccessful(false);
-                return resp;
-            }
+        if (availableRooms.size() < requestedRooms) {
+            BookRoomRes resp = new BookRoomRes();
+            resp.setBookingSuccessful(false);
+            return resp;
+        }
 
-        BookRoomResponseData resp = new BookRoomResponseData();
+        BookRoomRes resp = new BookRoomRes();
         resp.setBookingSuccessful(true);
         List<BookedRoom> roomsToBook = new ArrayList<>();
         for (int i = 0; i < requestedRooms; i++) {
@@ -183,23 +186,23 @@ public class Hotel {
         return resp;
     }
 
-    private RoomUnregisterResponseData handleRoomUnregister(RoomUnregisterReq req) {
+    private RoomUnregisterRes handleRoomUnregister(RoomUnregisterReq req) {
         rooms = rooms.stream()
                 .filter(room -> room.number.get() != req.getRoomNumber())
                 .collect(Collectors.toList());
 
         gui.notifyModified(rooms);
-        return new RoomUnregisterResponseData();
+        return new RoomUnregisterRes();
     }
 
-    private RoomInitResponse handleRoomRegister(RoomInitReqData request) {
+    private RoomInitRes handleRoomRegister(RoomInitReq request) {
         Room room = new Room();
         room.number.set(nextEmptyRoomNumber());
         room.port.set(nextEmptyRoomPort());
         room.key.set(UUID.randomUUID().toString());
         rooms.add(room);
 
-        RoomInitResponse rrr = new RoomInitResponse();
+        RoomInitRes rrr = new RoomInitRes();
         rrr.setRoomNumber(room.number.get());
         rrr.setRoomPort(room.port.get());
         rrr.setRoomKey(room.key.get());
@@ -209,13 +212,13 @@ public class Hotel {
     }
 
     private int nextEmptyRoomNumber() {
-        if(rooms.isEmpty())
+        if (rooms.isEmpty())
             return 1;
         return rooms.get(rooms.size() - 1).number.get() + 1;
     }
 
     private int nextEmptyRoomPort() {
-        if(rooms.isEmpty())
+        if (rooms.isEmpty())
             return getHotelPort() + 1;
         return rooms.get(rooms.size() - 1).port.get() + 1;
     }

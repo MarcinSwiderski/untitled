@@ -1,8 +1,8 @@
 package model.hotelrequest;
 
-import model.RequestData;
+import model.Request;
 
-public class RoomInitReqData implements RequestData {
+public class RoomInitReq implements Request {
     private int size;
 
     public int getSize() {

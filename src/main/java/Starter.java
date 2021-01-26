@@ -22,8 +22,6 @@ public class Starter extends JFrame {
         pack();
         setVisible(true);
         setMinimumSize(new Dimension(430, 480));
-
-
     }
     public void addRooms(){
         Thread room = new Thread(() -> {

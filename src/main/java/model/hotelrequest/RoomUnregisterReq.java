@@ -1,8 +1,8 @@
 package model.hotelrequest;
 
-import model.RequestData;
+import model.Request;
 
-public class RoomUnregisterReq implements RequestData {
+public class RoomUnregisterReq implements Request {
     private int roomNumber;
 
     public int getRoomNumber() {

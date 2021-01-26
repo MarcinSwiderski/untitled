@@ -1,10 +1,10 @@
 package model.hotelrequest;
 
-import model.RequestData;
+import model.Request;
 
 import java.util.List;
 
-public class EndStayRequestData implements RequestData {
+public class TerminalEndReservationReq implements Request {
     public static class RoomWithKey {
         private int roomNumber;
         private String roomKey;
@@ -19,13 +19,7 @@ public class EndStayRequestData implements RequestData {
 
     private List<RoomWithKey> roomsWithKeys;
 
-    // Used for situations when the Terminal window is closed before the user ended their stay properly
-    // and some of the Terminal's occupied Rooms are already dead. In this situation the Terminal can't
-    // contact all Room servers to unregister itself, so forcing the end of a stay is necessary
-    private boolean force;
 
-    public boolean isForce() { return force; }
-    public void setForce(boolean force) { this.force = force; }
     public String getWho() { return who; }
     public void setWho(String who) { this.who = who; }
     public List<RoomWithKey> getRoomsWithKeys() { return roomsWithKeys; }
