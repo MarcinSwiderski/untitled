@@ -5,9 +5,6 @@ import model.ResponseData;
 import model.hotelrequest.*;
 import model.hotelrequest.BookRoomResponseData.BookedRoom;
 import model.hotelrequest.EndStayRequestData.RoomWithKey;
-import model.roomrequest.RekeyRequestData;
-import model.roomrequest.RekeyResponseData;
-import model.roomrequest.RoomRequest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -164,7 +161,6 @@ public class Hotel {
         resp.setBookedRooms(
             bookedRoomSizes.stream().map(size -> {
                 Room bookedRoom = rooms.stream()
-//                        .filter(room -> room.size.get() == size)
                         .filter(room -> room.bookedCustomer.get() == null)
                         .findFirst()
                         .orElseThrow();

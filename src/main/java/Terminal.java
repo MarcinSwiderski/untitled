@@ -108,18 +108,6 @@ public class Terminal {
                         switchCard("initialCard");
                     } else {
                         String message = "Nie można zakończyć rezerwacji.";
-
-                        List<Integer> stillOccupiedRooms = resp.getStillOccupiedRooms();
-                        if (stillOccupiedRooms != null && stillOccupiedRooms.size() == 1) {
-                            message += String.format(" Pokój o numerze %s jest nadal zajęty.",
-                                    stillOccupiedRooms.get(0));
-                        } else if (stillOccupiedRooms != null && !stillOccupiedRooms.isEmpty()) {
-                            message += String.format(" Pokoje o numerach %s są nadal zajęte.",
-                                    stillOccupiedRooms.stream()
-                                            .map(String::valueOf)
-                                            .collect(Collectors.joining(", ")));
-                        }
-
                         JOptionPane.showMessageDialog(cardPanel, message);
                     }
                 });
