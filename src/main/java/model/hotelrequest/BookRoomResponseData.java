@@ -5,7 +5,7 @@ import model.ResponseData;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookRoomResponseData extends ResponseData {
+public class BookRoomResponseData implements ResponseData {
     public static class BookedRoom {
         private int number;
         private String host;

@@ -4,7 +4,7 @@ import model.ResponseData;
 
 import java.util.List;
 
-public class EndStayResponseData extends ResponseData {
+public class EndStayResponseData implements ResponseData {
     private boolean ok;
     private List<Integer> stillOccupiedRooms;
 

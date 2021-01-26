@@ -2,7 +2,7 @@ package model.hotelrequest;
 
 import model.ResponseData;
 
-public class RoomRegisterResponseData extends ResponseData {
+public class RoomRegisterResponseData implements ResponseData {
     private int number;
     private int port;
     private String key;

@@ -2,7 +2,7 @@ package model.hotelrequest;
 
 import model.RequestData;
 
-public class UpdateRoomStatusRequestData extends RequestData {
+public class UpdateRoomStatusRequestData implements RequestData {
     private int roomNumber;
     private boolean occupied;
     private String guest;

@@ -4,7 +4,7 @@ import model.RequestData;
 
 import java.util.List;
 
-public class EndStayRequestData extends RequestData {
+public class EndStayRequestData implements RequestData {
     public static class RoomWithKey {
         private int roomNumber;
         private String roomKey;

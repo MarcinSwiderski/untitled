@@ -5,7 +5,7 @@ import model.RequestData;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BookRoomRequestData extends RequestData {
+public class BookRoomRequestData implements RequestData {
     private String customerName;
     private List<Integer> bookedRoomSizes;
 

@@ -2,7 +2,7 @@ package model.roomrequest;
 
 import model.ResponseData;
 
-public class ExitResponseData extends ResponseData {
+public class ExitResponseData implements ResponseData {
     private boolean correctKey;
 
     public boolean isCorrectKey() { return correctKey; }

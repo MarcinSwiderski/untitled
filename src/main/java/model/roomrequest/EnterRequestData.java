@@ -2,7 +2,7 @@ package model.roomrequest;
 
 import model.RequestData;
 
-public class EnterRequestData extends RequestData {
+public class EnterRequestData implements RequestData {
     private String key;
     private String who;
 

@@ -1,3 +1,3 @@
 package model;
 
-public abstract class RequestData {}
+public interface RequestData {}

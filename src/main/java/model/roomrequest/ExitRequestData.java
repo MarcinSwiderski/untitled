@@ -2,7 +2,7 @@ package model.roomrequest;
 
 import model.RequestData;
 
-public class ExitRequestData extends RequestData {
+public class ExitRequestData implements RequestData {
     private String key;
     private String who;
     // used when handling the closing of a Terminal window - in that case we want to wait for

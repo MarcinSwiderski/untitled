@@ -2,7 +2,7 @@ package model.hotelrequest;
 
 import model.RequestData;
 
-public class RoomRegisterRequestData extends RequestData {
+public class RoomRegisterRequestData implements RequestData {
     private int size;
 
     public int getSize() {
