@@ -18,7 +18,6 @@ public class HotelGUI implements Runnable, TableModel {
     private final int COLUMN_PORT = 1;
     private final int COLUMN_SIZE = 2;
     private final int COLUMN_BOOKED = 3;
-    private final int COLUMN_OCCUPIED = 4;
 
 
     public HotelGUI(List<Hotel.Room> rooms, int hotelPort) {
@@ -50,7 +49,7 @@ public class HotelGUI implements Runnable, TableModel {
 
     @Override
     public int getColumnCount() {
-        return 5;
+        return 4;
     }
 
     @Override
@@ -59,7 +58,7 @@ public class HotelGUI implements Runnable, TableModel {
                 : i == COLUMN_PORT ? "Port"
                 : i == COLUMN_SIZE ? "Rozmiar pokoju"
                 : i == COLUMN_BOOKED ? "Zarezerwowany"
-                : i == COLUMN_OCCUPIED ? "Zajęty" : "";
+                : "";
     }
 
     @Override
@@ -84,7 +83,6 @@ public class HotelGUI implements Runnable, TableModel {
                 : column == COLUMN_PORT ? room.port.toString()
                 : column == COLUMN_SIZE ? room.size.toString()
                 : column == COLUMN_BOOKED ? (booked != null ? "tak (" + booked + ")" : "nie")
-                : column == COLUMN_OCCUPIED ? (guestInside != null ? "tak (" + guestInside + ")" : "nie")
                 : "";
     }
 

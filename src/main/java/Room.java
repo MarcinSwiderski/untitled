@@ -133,20 +133,6 @@ public class Room {
         serverThread.start();
     }
 
-
-    private EnterResponseData handleEnter(EnterRequestData req) {
-        EnterResponseData erd = new EnterResponseData();
-
-        if(! req.getKey().equals(key.get())) {
-            erd.setCorrectKey(false);
-        } else {
-            erd.setCorrectKey(true);
-            setCustomerInside(req.getWho(), false);
-        }
-
-        return erd;
-    }
-
     private RekeyResponseData handleRekey(RekeyRequestData req) {
         setKey(req.getKey());
         return new RekeyResponseData();
@@ -170,33 +156,6 @@ public class Room {
     private void setKey(String key) {
         this.key.set(key);
         updateLabels();
-    }
-
-    private void setCustomerInside(String customerInside, boolean synchronous) {
-        this.customerInside.set(customerInside);
-        updateLabels();
-
-        Thread thread = new Thread(() -> {
-            UpdateRoomStatusRequestData requestData = new UpdateRoomStatusRequestData();
-            requestData.setOccupied(customerInside != null);
-            requestData.setGuest(customerInside);
-            requestData.setRoomNumber(number.get());
-
-            try {
-                hotelSCU.query(
-                        HotelRequest.fromReqData(UPDATE_ROOM_STATUS, requestData),
-                        UpdateRoomStatusResponseData.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-
-        if(synchronous) {
-            //noinspection CallToThreadRun
-            thread.run();
-        } else {
-            thread.start();
-        }
     }
 
     private void handleConnection(Socket clientSocket) {

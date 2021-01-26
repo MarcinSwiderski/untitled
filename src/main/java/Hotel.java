@@ -93,7 +93,6 @@ public class Hotel {
             case ROOM_REGISTER: resp = handleRoomRegister(args.as(RoomRegisterRequestData.class)); break;
             case ROOM_UNREGISTER: resp = handleRoomUnregister(args.as(RoomUnregisterRequestData.class)); break;
             case BOOK_ROOM: resp = handleBookRoom(args.as(BookRoomRequestData.class)); break;
-            case UPDATE_ROOM_STATUS: resp = handleUpdateRoomStatus(args.as(UpdateRoomStatusRequestData.class)); break;
             case END_STAY: resp = handleEndStay(args.as(EndStayRequestData.class)); break;
             default:
                 throw new RuntimeException("Unknown request type");
@@ -144,18 +143,6 @@ public class Hotel {
         gui.notifyModified(rooms);
         endStayResponseData.setOk(true);
         return endStayResponseData;
-    }
-
-    private UpdateRoomStatusResponseData handleUpdateRoomStatus(UpdateRoomStatusRequestData req) {
-        Room room = rooms.stream()
-                .filter(r -> r.number.get() == req.getRoomNumber())
-                .findFirst()
-                .orElseThrow();
-
-        room.guestInside.set(req.isOccupied() ? req.getGuest() : null);
-
-        gui.notifyModified(rooms);
-        return new UpdateRoomStatusResponseData();
     }
 
     private BookRoomResponseData handleBookRoom(BookRoomRequestData req) {
