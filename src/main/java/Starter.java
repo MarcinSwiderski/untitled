@@ -10,7 +10,7 @@ public class Starter extends JFrame {
     public Starter() {
         PORT = deductPort();
         Thread host = new Thread(() -> {
-           new Hotel();
+           new Hotel(PORT);
         });
         startRoomsButton.addActionListener(actionEvent -> addRooms());
         startTerminalsButton.addActionListener(actionEvent -> addTerminal());
@@ -47,8 +47,7 @@ public class Starter extends JFrame {
         try {
             port = System.getenv("HOTEL:PORT");
             return Integer.parseInt(port);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
+        } catch (NumberFormatException ignored) {
         }
         try {
             port = JOptionPane.showInputDialog("Port serwera: ");
@@ -56,6 +55,6 @@ public class Starter extends JFrame {
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
-        return  1600;
+        return  3010;
     }
 }

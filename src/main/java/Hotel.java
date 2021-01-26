@@ -6,6 +6,7 @@ import model.hotelrequest.*;
 import model.hotelrequest.BookRoomResponseData.BookedRoom;
 import model.hotelrequest.EndStayRequestData.RoomWithKey;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,21 +27,27 @@ public class Hotel {
     public static class Room {
         public final AtomicInteger number = new AtomicInteger();
         public final AtomicInteger port = new AtomicInteger();
-        public final AtomicReference<String> bookedCustomer = new AtomicReference<String>();
-        public final AtomicReference<String> key = new AtomicReference<String>();
-        public final AtomicReference<String> guestInside = new AtomicReference<String>();
+        public final AtomicReference<String> bookedCustomer = new AtomicReference<>();
+        public final AtomicReference<String> key = new AtomicReference<>();
+        public final AtomicReference<String> guestInside = new AtomicReference<>();
     }
     private List<Room> rooms = new CopyOnWriteArrayList<>(); // a concurrent list so HotelGUI can access it freely
     private HotelGUI gui;
+    private static int startingPort = 3010;
 
     public Hotel() {
         startGui();
         serve(getHotelPort());
+    }
 
+    public Hotel(int port) {
+        startingPort = port;
+        startGui();
+        serve(getHotelPort());
     }
 
     public static void main(String[] args) {
-        Hotel hotel = new Hotel();
+        Hotel hotel = new Hotel(Integer.parseInt(JOptionPane.showInputDialog("Port serwera: ")));
     }
 
     private void startGui() {
@@ -67,7 +74,7 @@ public class Hotel {
     public static int getHotelPort() {
         String port = System.getenv("HOTEL:PORT");
         if(port == null)
-            return 1600;
+            return startingPort;
         return Integer.parseInt(port);
     }
 
