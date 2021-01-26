@@ -5,13 +5,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -21,7 +17,7 @@ import static model.hotelrequest.HotelRequest.RequestType.*;
 public class Room {
     private JPanel panel;
     private JLabel labelName;
-    private JLabel labelCapacity;
+//    private JLabel labelCapacity;
     private JLabel labelIsFull;
     private JLabel labelKey;
     private Thread serverThread;
@@ -47,7 +43,7 @@ public class Room {
     private void updateLabels() {
         SwingUtilities.invokeLater(() -> { // run on GUI thread
             labelName.setText(String.valueOf(number.get()));
-            labelCapacity.setText(String.valueOf(SIZE));
+//            labelCapacity.setText(String.valueOf(SIZE));
             labelIsFull.setText(customerInside.get() == null ? "Wolny" : "Zajęty (" + customerInside.get() + ")");
             labelKey.setText(key.get());
         });
@@ -70,7 +66,6 @@ public class Room {
         } catch (IOException | InterruptedException ex) {
             ex.printStackTrace();
         }
-
     }
 
     private void runUi() {
@@ -90,30 +85,30 @@ public class Room {
                 onExit();
             }
         });
-        frame.setMinimumSize(new Dimension(450, 150));
+        frame.setMinimumSize(new Dimension(500, 200));
     }
 
     private void queryNumberAndPort() throws IOException {
-        RoomRegisterRequestData rrr = new RoomRegisterRequestData();
+        RoomInitReqData rrr = new RoomInitReqData();
         rrr.setSize(SIZE);
 
-        RoomRegisterResponseData resp = hotelSCU.query(
+        RoomInitResponse resp = hotelSCU.query(
                 HotelRequest.fromReqData(ROOM_REGISTER, rrr),
-                RoomRegisterResponseData.class);
+                RoomInitResponse.class);
 
-        setNumber(resp.getNumber());
-        setPort(resp.getPort());
-        setKey(resp.getKey());
+        setNumber(resp.getRoomNumber());
+        setPort(resp.getRoomPort());
+        setKey(resp.getRoomKey());
     }
 
     private void deleteFromHotel() {
-        RoomUnregisterRequestData rurd = new RoomUnregisterRequestData();
+        RoomUnregisterReq rurd = new RoomUnregisterReq();
         rurd.setRoomNumber(number.get());
 
         try {
             hotelSCU.query(
                     HotelRequest.fromReqData(ROOM_UNREGISTER, rurd),
-                    RoomRegisterResponseData.class);
+                    RoomInitResponse.class);
         } catch (IOException e) {
             System.err.println("Failed unregistering from the Hotel");
             e.printStackTrace();
