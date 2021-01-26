@@ -36,6 +36,7 @@ public class Hotel {
     public Hotel() {
         startGui();
         serve(getHotelPort());
+
     }
 
     public static void main(String[] args) {

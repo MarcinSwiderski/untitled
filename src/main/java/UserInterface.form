@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="Terminal">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="UserInterface">
   <grid id="27dc6" binding="cardPanel" layout-manager="CardLayout" hgap="0" vgap="0">
     <constraints>
       <xy x="30" y="37" width="702" height="443"/>

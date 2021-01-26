@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class Terminal {
+public class UserInterface {
     private JPanel cardPanel;
     private JTextField name;
     private JSpinner roomsAmount;
@@ -24,10 +24,10 @@ public class Terminal {
     private List<BookedRoom> bookedRooms;
 
     public static void main(String[] args) {
-        Terminal terminal = new Terminal();
+        UserInterface terminal = new UserInterface();
     }
 
-    public Terminal() {
+    public UserInterface() {
         bookButton.addActionListener(actionEvent -> bookButton());
         closeReservation.addActionListener(actionEvent -> endBooking());
         runUi();
