@@ -11,10 +11,7 @@ public class BookRoomResponseData implements ResponseData {
         private String host;
         private int port;
         private String key;
-        private int size;
 
-        public int getSize() { return size; }
-        public void setSize(int size) { this.size = size; }
         public String getKey() { return key; }
         public void setKey(String key) { this.key = key; }
         public int getNumber() { return number; }
