@@ -15,11 +15,8 @@ public class Launcher {
     private JPanel panel;
     private JSpinner hotelPort;
     private JSpinner singleRoomsCount;
-    private JSpinner doubleRoomsCount;
-    private JSpinner tripleRoomsCount;
     private JButton startHotelButton;
     private JButton startRoomsButton;
-    private JSpinner terminalsCount;
     private JButton startTerminalsButton;
 
     private final File javaExeutable;
@@ -31,13 +28,10 @@ public class Launcher {
         jar = getJar();
 
         hotelPort.setValue(1500);
-        terminalsCount.setValue(2);
         singleRoomsCount.setValue(2);
-        doubleRoomsCount.setValue(2);
-        tripleRoomsCount.setValue(2);
         startHotelButton.addActionListener(actionEvent -> startHotel());
         startRoomsButton.addActionListener(actionEvent -> startRooms());
-        startTerminalsButton.addActionListener(actionEvent -> startTerminals());
+        startTerminalsButton.addActionListener(actionEvent -> startTerminal());
     }
 
     private static File getJavaExecutable() {
@@ -89,10 +83,8 @@ public class Launcher {
         launcher.runUi();
     }
 
-    private void startTerminals() {
-        for(int i = 0; i < (int) terminalsCount.getValue(); i++) {
-            start(buildProcess("Terminal"));
-        }
+    private void startTerminal() {
+        start(buildProcess("Terminal"));
     }
 
     private void start(ProcessBuilder processBuilder) {
@@ -106,12 +98,7 @@ public class Launcher {
 
     private void startRooms() {
         int singleCount = (int) singleRoomsCount.getValue();
-        int doubleCount = (int) doubleRoomsCount.getValue();
-        int tripeCount = (int) tripleRoomsCount.getValue();
-
         IntStream.range(0, singleCount).forEach(i -> start(buildRoomOfSize(1)));
-        IntStream.range(0, doubleCount).forEach(i -> start(buildRoomOfSize(2)));
-        IntStream.range(0, tripeCount).forEach(i -> start(buildRoomOfSize(3)));
     }
 
     private void startHotel() {

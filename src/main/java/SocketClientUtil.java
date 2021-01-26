@@ -36,9 +36,6 @@ public class SocketClientUtil implements Closeable {
     public synchronized void close() throws IOException {
         if(socket != null && !socket.isClosed()) {
             if(socket.isConnected()) {
-                // an empty line in this system signifies the end of a connection
-                // in practice sending a packet to close a connection works way better than simply closing it
-                // on the client as the server will know nearly instantly the connection is closed
                 out.println("");
             }
             out.close();

@@ -20,8 +20,8 @@ public class Terminal {
     private JPanel cardPanel;
     private JTextField name;
     private JSpinner singleRoomsAmount;
-    private JSpinner doubleRoomsAmount;
-    private JSpinner tripleRoomsAmount;
+//    private JSpinner doubleRoomsAmount;
+//    private JSpinner tripleRoomsAmount;
     private JButton bookButton;
     private JPanel booked;
     private JButton closeReservation;
@@ -40,19 +40,15 @@ public class Terminal {
     private void bookButton() {
         final String customerName = name.getText();
         try {
-            for (JSpinner spinner : Arrays.asList(singleRoomsAmount, doubleRoomsAmount, tripleRoomsAmount))
+            for (JSpinner spinner : Arrays.asList(singleRoomsAmount))
                 spinner.commitEdit();
         } catch (ParseException ignored) {}
 
         int singleRooms = (Integer) singleRoomsAmount.getValue();
-        int doubleRooms = (Integer) doubleRoomsAmount.getValue();
-        int tripleRooms = (Integer) tripleRoomsAmount.getValue();
 
         new Thread(() -> {
             List<Integer> roomSizes = new ArrayList<>();
             IntStream.range(0, singleRooms).mapToObj(i -> 1).forEach(roomSizes::add);
-            IntStream.range(0, doubleRooms).mapToObj(i -> 2).forEach(roomSizes::add);
-            IntStream.range(0, tripleRooms).mapToObj(i -> 3).forEach(roomSizes::add);
 
             BookRoomRequestData bookRoomRequestData = new BookRoomRequestData();
             bookRoomRequestData.setCustomerName(customerName);

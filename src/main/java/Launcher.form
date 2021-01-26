@@ -64,7 +64,6 @@
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties>
-          <labelFor value="7e34a"/>
           <text value="Ilość pokoi 2-osobowych:"/>
         </properties>
       </component>
@@ -80,27 +79,12 @@
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties>
-          <labelFor value="586b2"/>
           <text value="Ilość pokoi 3-osobowych:"/>
         </properties>
       </component>
       <component id="8e148" class="javax.swing.JSpinner" binding="singleRoomsCount">
         <constraints>
           <grid row="6" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-          <gridbag weightx="0.0" weighty="0.0"/>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="7e34a" class="javax.swing.JSpinner" binding="doubleRoomsCount">
-        <constraints>
-          <grid row="8" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-          <gridbag weightx="0.0" weighty="0.0"/>
-        </constraints>
-        <properties/>
-      </component>
-      <component id="586b2" class="javax.swing.JSpinner" binding="tripleRoomsCount">
-        <constraints>
-          <grid row="10" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties/>
@@ -153,16 +137,8 @@
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties>
-          <labelFor value="663d5"/>
           <text value="Ilość terminali:"/>
         </properties>
-      </component>
-      <component id="663d5" class="javax.swing.JSpinner" binding="terminalsCount">
-        <constraints>
-          <grid row="14" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-          <gridbag weightx="0.0" weighty="0.0"/>
-        </constraints>
-        <properties/>
       </component>
       <vspacer id="b4b03">
         <constraints>
