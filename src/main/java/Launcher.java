@@ -28,7 +28,7 @@ public class Launcher {
         jar = getJar();
 
         hotelPort.setValue(1600);
-        singleRoomsCount.setValue(5);
+        singleRoomsCount.setValue(2);
         startHotelButton.addActionListener(actionEvent -> startHotel());
         startRoomsButton.addActionListener(actionEvent -> startRooms());
         startTerminalsButton.addActionListener(actionEvent -> startTerminal());

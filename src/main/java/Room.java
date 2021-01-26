@@ -30,19 +30,19 @@ public class Room {
     private JLabel labelKey;
     private Thread serverThread;
     private JFrame frame;
+    private final int SIZE = 1;
 
     private SocketClientUtil hotelSCU = new SocketClientUtil("127.0.0.1", Hotel.getHotelPort());
     private final AtomicReference<ServerSocket> serverSocket = new AtomicReference<>();
     private final AtomicInteger number = new AtomicInteger();
     private final AtomicInteger port = new AtomicInteger();
-    private final AtomicInteger size = new AtomicInteger(getRoomSize());
     private final AtomicReference<String> key = new AtomicReference<>();
     private final AtomicReference<String> customerInside = new AtomicReference<>();
 
     private void updateLabels() {
         SwingUtilities.invokeLater(() -> { // run on GUI thread
             labelName.setText(String.valueOf(number.get()));
-            labelCapacity.setText(String.valueOf(size.get()));
+            labelCapacity.setText(String.valueOf(SIZE));
             labelIsFull.setText(customerInside.get() == null ? "Wolny" : "Zajęty (" + customerInside.get() + ")");
             labelKey.setText(key.get());
         });
@@ -66,13 +66,6 @@ public class Room {
             ex.printStackTrace();
         }
 
-    }
-
-    private static int getRoomSize() {
-        String size = System.getenv("LAB06_ROOM_SIZE");
-        if(size == null)
-            return 3;
-        return Integer.parseInt(size);
     }
 
     private void runUi() {
@@ -103,7 +96,7 @@ public class Room {
 
     private void queryNumberAndPort() throws IOException {
         RoomRegisterRequestData rrr = new RoomRegisterRequestData();
-        rrr.setSize(size.get());
+        rrr.setSize(SIZE);
 
         RoomRegisterResponseData resp = hotelSCU.query(
                 HotelRequest.fromReqData(ROOM_REGISTER, rrr),
@@ -133,11 +126,6 @@ public class Room {
         serverThread.start();
     }
 
-    private RekeyResponseData handleRekey(RekeyRequestData req) {
-        setKey(req.getKey());
-        return new RekeyResponseData();
-    }
-
     private void setNumber(int number) {
         this.number.set(number);
         updateLabels();
@@ -148,28 +136,9 @@ public class Room {
         updateLabels();
     }
 
-    private void setSize(int size) {
-        this.size.set(size);
-        updateLabels();
-    }
-
     private void setKey(String key) {
         this.key.set(key);
         updateLabels();
-    }
-
-    private void handleConnection(Socket clientSocket) {
-        try(PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
-        ) {
-            String line;
-            while (null != (line = in.readLine()) && !line.isEmpty())
-//                handleLine(line, out);
-
-            clientSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private void serverThread() {
@@ -181,10 +150,6 @@ public class Room {
 
             serverSock.setReuseAddress(true);
             serverSock.bind(new InetSocketAddress(port.get()));
-            while (true) {
-                Socket clientSocket = serverSock.accept();
-                new Thread(() -> handleConnection(clientSocket)).start();
-            }
         } catch (SocketException sex) {
             // Ignore - the socket must have been closed from another thread
         } catch (IOException e) {

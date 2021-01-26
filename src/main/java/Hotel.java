@@ -66,7 +66,7 @@ public class Hotel {
     public static int getHotelPort() {
         String port = System.getenv("LAB06_HOTEL_PORT");
         if(port == null)
-            return 1500;
+            return 1600;
         return Integer.parseInt(port);
     }
 
@@ -133,13 +133,6 @@ public class Hotel {
         }
 
         bookedForCustomer.forEach(room -> room.bookedCustomer.set(null));
-
-        List<Thread> rekeyingThreads = bookedForCustomer.stream()
-                .map(room -> new Thread(() -> rekeyRoom(room)))
-                .collect(Collectors.toList());
-
-        rekeyingThreads.forEach(Thread::start);
-
         gui.notifyModified(rooms);
         endStayResponseData.setOk(true);
         return endStayResponseData;
@@ -153,7 +146,7 @@ public class Hotel {
         for(int size = 1; size <= 3; size++) {
             final int finalSize = size; // so that it can be used in lambdas below
             long availableRooms = rooms.stream()
-                    .filter(room -> room.size.get() == finalSize)
+//                    .filter(room -> room.size.get() == finalSize)
                     .filter(room -> room.bookedCustomer.get() == null)
                     .count();
             long requestedRooms = bookedRoomSizes.stream()
@@ -166,13 +159,12 @@ public class Hotel {
                 return resp;
             }
         }
-
         BookRoomResponseData resp = new BookRoomResponseData();
         resp.setBookingSuccessful(true);
         resp.setBookedRooms(
             bookedRoomSizes.stream().map(size -> {
                 Room bookedRoom = rooms.stream()
-                        .filter(room -> room.size.get() == size)
+//                        .filter(room -> room.size.get() == size)
                         .filter(room -> room.bookedCustomer.get() == null)
                         .findFirst()
                         .orElseThrow();
@@ -184,29 +176,11 @@ public class Hotel {
                 bookedRoom.setPort(room.port.get());
                 bookedRoom.setNumber(room.number.get());
                 bookedRoom.setKey(room.key.get());
-                bookedRoom.setSize(room.size.get());
                 return bookedRoom;
             }).collect(Collectors.toList()));
 
         gui.notifyModified(rooms);
         return resp;
-    }
-
-    private void rekeyRoom(Room room) {
-        room.key.set(UUID.randomUUID().toString());
-
-        // Tell a room about its new key
-        try(SocketClientUtil scu = new SocketClientUtil("127.0.0.1", room.port.get())) {
-            RekeyRequestData rrd = new RekeyRequestData();
-            rrd.setKey(room.key.get());
-
-            scu.query(
-                    RoomRequest.fromReqData(RoomRequest.RequestType.REKEY, rrd),
-                    RekeyResponseData.class);
-        } catch (IOException e) {
-            System.err.println("Could not rekey room " + room.number);
-            e.printStackTrace();
-        }
     }
 
     private RoomUnregisterResponseData handleRoomUnregister(RoomUnregisterRequestData req) {
